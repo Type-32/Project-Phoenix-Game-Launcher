@@ -79,7 +79,7 @@ namespace Project_Phoenix_Game_Launcher
                 {
                     var cloudVerStr = await GetCloudLatestVersion();
                     if (cloudVerStr == null) {
-                        throw new Exception("Failed fetch cloud version");
+                        throw new Exception("Failed to fetch version from cloud");
                     }
 
                     var cloudVer = new Version(cloudVerStr);
@@ -108,7 +108,7 @@ namespace Project_Phoenix_Game_Launcher
         {
             try
             {
-                WebClient webClient = new WebClient();
+                WebClient webClient = new();
                 if (_isUpdate)
                 {
                     Status = LauncherStatus.DownloadingUpdate;
@@ -122,7 +122,7 @@ namespace Project_Phoenix_Game_Launcher
                 var cloudVerStr = await GetCloudLatestVersion();
                 if (cloudVerStr == null)
                 {
-                    throw new Exception("Failed fetch cloud version");
+                    throw new Exception("Failed to fetch Version Manifest from the Cloud");
                 }
                 _onlineVersion = new Version(cloudVerStr);
 
@@ -130,7 +130,7 @@ namespace Project_Phoenix_Game_Launcher
                 var cloudDownloadURL = await GetCloudLatestDistDownloadURL();
                 if (cloudDownloadURL == null)
                 {
-                    throw new Exception("Failed fetch cloud dist download url");
+                    throw new Exception("Failed to fetch Download URL from the Cloud");
                 }
 
                 // Download
@@ -157,7 +157,7 @@ namespace Project_Phoenix_Game_Launcher
             if (releases == null || releases.AsArray().Count == 0)
             {
                 Status = LauncherStatus.Failed;
-                MessageBox.Show("Error when get cloud version: cannot found latest version");
+                MessageBox.Show("An Error Ocurred when trying to fetch Cloud Version: Cannot find Latest Version");
                 return null;
             }
 
@@ -166,7 +166,7 @@ namespace Project_Phoenix_Game_Launcher
 
         public async Task<string?> GetCloudLatestDistDownloadURL()
         {
-            HttpClient client = new HttpClient();
+            HttpClient client = new();
 
             var res = await client.GetStringAsync(LauncherConfig.RELEASE_REPO);
             var releases = JsonArray.Parse(res);
@@ -174,7 +174,7 @@ namespace Project_Phoenix_Game_Launcher
             if (releases == null || releases.AsArray().Count == 0)
             {
                 Status = LauncherStatus.Failed;
-                MessageBox.Show("Error when get download url: cannot found latest version");
+                MessageBox.Show("An Error Ocurred when trying to fetch Download URL: Cannot find Latest Version");
                 return null;
             }
 
@@ -184,7 +184,7 @@ namespace Project_Phoenix_Game_Launcher
                 }
             }
 
-            MessageBox.Show($"Error when get download url: latest version didn't have {LauncherConfig.DIST_DOWNLOAD_KEY} asset");
+            MessageBox.Show($"An Error Ocurred when trying to fetch download URL: Asset {LauncherConfig.DIST_DOWNLOAD_KEY} Does not exist");
             return null;
         }
 

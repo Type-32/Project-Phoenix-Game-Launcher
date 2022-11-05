@@ -179,7 +179,7 @@ namespace Project_Phoenix_Game_Launcher
 
             foreach(var asset in releases[0]["assets"].AsArray()) {
                 if ((string)asset["name"] == LauncherConfig.DIST_DOWNLOAD_KEY) {
-                    return (string)asset["name"];
+                    return (string)asset["browser_download_url"];
                 }
             }
 

@@ -5,12 +5,20 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Text.Json.Nodes;
 
 namespace Project_Phoenix_Game_Launcher
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+
+    public class LauncherConfig {
+        public static string RELEASE_REPO = "https://repo.smartsheep.space/api/v1/repos/CRTL_Prototype_Studios/Project_Phoenix_Files/releases";
+    }
+
     enum LauncherStatus
     {
         Ready,
@@ -103,13 +111,13 @@ namespace Project_Phoenix_Game_Launcher
                 else
                 {
                     Status = LauncherStatus.DownloadingGame;
-                    //Version File Link
+                    // Version File Link
                     _onlineVersion = new Version(webClient.DownloadString(onlineVersionFileLink));
                 }
                 webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadGameCompletedCallback);
-                //Game Build ZIp Link
+                // Game Build ZIp Link
                 webClient.DownloadFileAsync(new Uri(onlineBuildZipLink), gameZip, _onlineVersion);
-                //webClient.DownloadFileAsync(new Uri(GetGoogleDriveDownloadLinkFromUrl("https://drive.google.com/file/d/15ykBxR5ChCXpvEp9kzNpNMNmtQrU8ZA9/view?usp=sharing")), gameZip, _onlineVersion);
+                
             }
             catch (Exception ex)
             {
@@ -118,35 +126,26 @@ namespace Project_Phoenix_Game_Launcher
             }
         }
 
-        public static string GetGoogleDriveDownloadLinkFromUrl(string url)
+        public async Task<string?> GetCloudVersionAsync()
         {
-            int index = url.IndexOf("id=");
-            int closingIndex;
-            if (index > 0)
-            {
-                index += 3;
-                closingIndex = url.IndexOf('&', index);
-                if (closingIndex < 0)
-                    closingIndex = url.Length;
-            }
-            else
-            {
-                index = url.IndexOf("file/d/");
-                if (index < 0) // url is not in any of the supported forms
-                    return string.Empty;
+            HttpClient client = new HttpClient();
 
-                index += 7;
+            var res = await client.GetStringAsync(LauncherConfig.RELEASE_REPO);
+            var releases = JsonArray.Parse(res);
 
-                closingIndex = url.IndexOf('/', index);
-                if (closingIndex < 0)
-                {
-                    closingIndex = url.IndexOf('?', index);
-                    if (closingIndex < 0)
-                        closingIndex = url.Length;
-                }
+            if (releases == null || releases.AsArray().Count == 0)
+            {
+                Status = LauncherStatus.Failed;
+                MessageBox.Show("Error when get cloud version: cannot found latest version");
+                return null;
             }
 
-            return string.Format("https://drive.google.com/uc?id={0}&export=download", url.Substring(index, closingIndex - index));
+            return (string)releases[0]["tag_name"];
+        }
+
+        public void GetGameDistDownlaodURL(string repo)
+        {
+
         }
 
         private void DownloadGameCompletedCallback(object sender, AsyncCompletedEventArgs e)

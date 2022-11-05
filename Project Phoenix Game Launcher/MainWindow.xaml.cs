@@ -5,12 +5,22 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Text.Json.Nodes;
 
 namespace Project_Phoenix_Game_Launcher
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+
+    public class LauncherConfig {
+        public static string RELEASE_REPO = "https://repo.smartsheep.space/api/v1/repos/CRTL_Prototype_Studios/Project_Phoenix_Files/releases";
+        public static string DIST_DOWNLOAD_KEY = "Build.zip";
+        public static string VERSION_FETCH_KEY = "name";
+    }
+
     enum LauncherStatus
     {
         Ready,
@@ -25,8 +35,6 @@ namespace Project_Phoenix_Game_Launcher
         private string gameZip;
         private string gameExe;
         private LauncherStatus _status;
-        private string onlineVersionFileLink = "https://sheep-codenas.direct.quickconnect.cn:59374/d/s/qHyjpAyf73Ke20YVuZ95Mio6Kpf9LQBF/webapi/entry.cgi/Version.txt?api=SYNO.SynologyDrive.Files&method=download&version=2&files=%5B%22id%3A707854181972617208%22%5D&force_download=true&json_error=true&c2_offload=%22allow%22&_dc=1665674248487&sharing_token=%22RLhNCt9HY7ZOsSN8g5evTR3G1C1Rr3oklSC.Mwclm9MZMiSW7NrpDzApXfdLmcfCsglDhXoXPGqtsXmqhDhWa19HPc3RHSe7hfc2miGBoGXzrN7a9YsNW4nju.7ZIh.lMlVwzLBR5IUNU40dtWKll2YnDS2WEQAwU811gA.GHR.A0nLWKg4sqxt77WlmDwGVslYHwG5W9evF36U196FjRcMR7XVCgp.8HeRAseBb2Kaa7ksWU001G4eK%22&SynoToken=U9GWVKqE6vFmM";
-        private string onlineBuildZipLink = "https://sheep-codenas.direct.quickconnect.cn:59374/d/s/qHyjtTNCgdTCK4c9uzCxFMGo4WKYNxX3/webapi/entry.cgi/Build.zip?api=SYNO.SynologyDrive.Files&method=download&version=2&files=%5B%22id%3A707854185908971514%22%5D&force_download=true&json_error=true&c2_offload=%22allow%22&_dc=1665674137577&sharing_token=%22V61nNDaN3MoPSk3otKlcDpHGtGHJJxNg.KHi3WsVqIbRvqlsSKm65.b0UuqxSrdlwBgdlPy_GeW_VXPk48E66EvEQ5Yx.17LKSE.M8LLFZT56kZZOY6MFgeF32Ujz3Yp9ojTj9jJ38XhnsH_0kRWPgk2JllQ0RR6MmM9pKFVN7eG5oBYlZbFwF83iNrgnFGsh3t6USYZIEuWxD1wv4e8r2LjgyeQymW9CJVEMnXaybx5hqA5MJ_3KBn2%22&SynoToken=U9GWVKqE6vFmM";
         internal LauncherStatus Status
         {
             get => _status;
@@ -60,7 +68,8 @@ namespace Project_Phoenix_Game_Launcher
             gameZip = Path.Combine(rootPath, "Build.zip");
             gameExe = Path.Combine(rootPath, "Build", "Project Phoenix.exe");
         }
-        private void CheckForUpdates()
+
+        private async void CheckForUpdates()
         {
             if (File.Exists(versionFile))
             {
@@ -68,12 +77,15 @@ namespace Project_Phoenix_Game_Launcher
                 VersionText.Text = "Game Version " + localVersion.ToString();
                 try
                 {
-                    WebClient webClient = new WebClient();
-                    //Version File Link
-                    Version onlineVersion = new Version(webClient.DownloadString(onlineVersionFileLink));
-                    if (onlineVersion.IsDifferentThan(localVersion))
+                    var cloudVerStr = await GetCloudLatestVersion();
+                    if (cloudVerStr == null) {
+                        throw new Exception("Failed fetch cloud version");
+                    }
+
+                    var cloudVer = new Version(cloudVerStr);
+                    if (cloudVer.IsDifferentThan(localVersion))
                     {
-                        InstallGameFiles(true, onlineVersion);
+                        InstallGameFiles(true, cloudVer);
                     }
                     else
                     {
@@ -83,7 +95,7 @@ namespace Project_Phoenix_Game_Launcher
                 catch (Exception ex)
                 {
                     Status = LauncherStatus.Failed;
-                    MessageBox.Show($"Error Checking for Game Updates: {ex}");
+                    MessageBox.Show($"Error when checking games update: {ex}");
                 }
             }
             else
@@ -91,7 +103,8 @@ namespace Project_Phoenix_Game_Launcher
                 InstallGameFiles(false, Version.zero);
             }
         }
-        private void InstallGameFiles(bool _isUpdate, Version _onlineVersion)
+
+        private async void InstallGameFiles(bool _isUpdate, Version _onlineVersion)
         {
             try
             {
@@ -103,13 +116,29 @@ namespace Project_Phoenix_Game_Launcher
                 else
                 {
                     Status = LauncherStatus.DownloadingGame;
-                    //Version File Link
-                    _onlineVersion = new Version(webClient.DownloadString(onlineVersionFileLink));
                 }
+
+                // Fetch cloud version
+                var cloudVerStr = await GetCloudLatestVersion();
+                if (cloudVerStr == null)
+                {
+                    throw new Exception("Failed fetch cloud version");
+                }
+                _onlineVersion = new Version(cloudVerStr);
+
+                // Fetch cloud download url
+                var cloudDownloadURL = await GetCloudLatestDistDownloadURL();
+                if (cloudDownloadURL == null)
+                {
+                    throw new Exception("Failed fetch cloud dist download url");
+                }
+
+                // Download
                 webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadGameCompletedCallback);
-                //Game Build ZIp Link
-                webClient.DownloadFileAsync(new Uri(onlineBuildZipLink), gameZip, _onlineVersion);
-                //webClient.DownloadFileAsync(new Uri(GetGoogleDriveDownloadLinkFromUrl("https://drive.google.com/file/d/15ykBxR5ChCXpvEp9kzNpNMNmtQrU8ZA9/view?usp=sharing")), gameZip, _onlineVersion);
+                webClient.DownloadFileAsync(new Uri(cloudDownloadURL), gameZip, _onlineVersion);
+
+                // After download update local version file
+                File.WriteAllText(versionFile, _onlineVersion.ToString());
             }
             catch (Exception ex)
             {
@@ -118,35 +147,45 @@ namespace Project_Phoenix_Game_Launcher
             }
         }
 
-        public static string GetGoogleDriveDownloadLinkFromUrl(string url)
+        public async Task<string?> GetCloudLatestVersion()
         {
-            int index = url.IndexOf("id=");
-            int closingIndex;
-            if (index > 0)
+            HttpClient client = new HttpClient();
+
+            var res = await client.GetStringAsync(LauncherConfig.RELEASE_REPO);
+            var releases = JsonArray.Parse(res);
+
+            if (releases == null || releases.AsArray().Count == 0)
             {
-                index += 3;
-                closingIndex = url.IndexOf('&', index);
-                if (closingIndex < 0)
-                    closingIndex = url.Length;
+                Status = LauncherStatus.Failed;
+                MessageBox.Show("Error when get cloud version: cannot found latest version");
+                return null;
             }
-            else
+
+            return (string)releases[0][LauncherConfig.VERSION_FETCH_KEY];
+        }
+
+        public async Task<string?> GetCloudLatestDistDownloadURL()
+        {
+            HttpClient client = new HttpClient();
+
+            var res = await client.GetStringAsync(LauncherConfig.RELEASE_REPO);
+            var releases = JsonArray.Parse(res);
+
+            if (releases == null || releases.AsArray().Count == 0)
             {
-                index = url.IndexOf("file/d/");
-                if (index < 0) // url is not in any of the supported forms
-                    return string.Empty;
+                Status = LauncherStatus.Failed;
+                MessageBox.Show("Error when get download url: cannot found latest version");
+                return null;
+            }
 
-                index += 7;
-
-                closingIndex = url.IndexOf('/', index);
-                if (closingIndex < 0)
-                {
-                    closingIndex = url.IndexOf('?', index);
-                    if (closingIndex < 0)
-                        closingIndex = url.Length;
+            foreach(var asset in releases[0]["assets"].AsArray()) {
+                if ((string)asset["name"] == LauncherConfig.DIST_DOWNLOAD_KEY) {
+                    return (string)asset["browser_download_url"];
                 }
             }
 
-            return string.Format("https://drive.google.com/uc?id={0}&export=download", url.Substring(index, closingIndex - index));
+            MessageBox.Show($"Error when get download url: latest version didn't have {LauncherConfig.DIST_DOWNLOAD_KEY} asset");
+            return null;
         }
 
         private void DownloadGameCompletedCallback(object sender, AsyncCompletedEventArgs e)
@@ -168,10 +207,12 @@ namespace Project_Phoenix_Game_Launcher
                 MessageBox.Show($"Error Finishing Game Files Download: {ex}");
             }
         }
+
         private void Window_ContentRendered(object sender, EventArgs e)
         {
             CheckForUpdates();
         }
+
         private void PlayButton_Click(object sender, RoutedEventArgs e)
         {
             if (File.Exists(gameExe) && Status == LauncherStatus.Ready)
@@ -187,6 +228,7 @@ namespace Project_Phoenix_Game_Launcher
             }
         }
     }
+
     struct Version
     {
         internal static Version zero = new Version(0, 0, 0, "");

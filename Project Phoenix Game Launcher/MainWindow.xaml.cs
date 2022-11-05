@@ -18,6 +18,7 @@ namespace Project_Phoenix_Game_Launcher
     public class LauncherConfig {
         public static string RELEASE_REPO = "https://repo.smartsheep.space/api/v1/repos/CRTL_Prototype_Studios/Project_Phoenix_Files/releases";
         public static string DIST_DOWNLOAD_KEY = "Build.zip";
+        public static string VERSION_FETCH_KEY = "name";
     }
 
     enum LauncherStatus
@@ -34,8 +35,6 @@ namespace Project_Phoenix_Game_Launcher
         private string gameZip;
         private string gameExe;
         private LauncherStatus _status;
-        private string onlineVersionFileLink = "https://sheep-codenas.direct.quickconnect.cn:59374/d/s/qHyjpAyf73Ke20YVuZ95Mio6Kpf9LQBF/webapi/entry.cgi/Version.txt?api=SYNO.SynologyDrive.Files&method=download&version=2&files=%5B%22id%3A707854181972617208%22%5D&force_download=true&json_error=true&c2_offload=%22allow%22&_dc=1665674248487&sharing_token=%22RLhNCt9HY7ZOsSN8g5evTR3G1C1Rr3oklSC.Mwclm9MZMiSW7NrpDzApXfdLmcfCsglDhXoXPGqtsXmqhDhWa19HPc3RHSe7hfc2miGBoGXzrN7a9YsNW4nju.7ZIh.lMlVwzLBR5IUNU40dtWKll2YnDS2WEQAwU811gA.GHR.A0nLWKg4sqxt77WlmDwGVslYHwG5W9evF36U196FjRcMR7XVCgp.8HeRAseBb2Kaa7ksWU001G4eK%22&SynoToken=U9GWVKqE6vFmM";
-        private string onlineBuildZipLink = "https://sheep-codenas.direct.quickconnect.cn:59374/d/s/qHyjtTNCgdTCK4c9uzCxFMGo4WKYNxX3/webapi/entry.cgi/Build.zip?api=SYNO.SynologyDrive.Files&method=download&version=2&files=%5B%22id%3A707854185908971514%22%5D&force_download=true&json_error=true&c2_offload=%22allow%22&_dc=1665674137577&sharing_token=%22V61nNDaN3MoPSk3otKlcDpHGtGHJJxNg.KHi3WsVqIbRvqlsSKm65.b0UuqxSrdlwBgdlPy_GeW_VXPk48E66EvEQ5Yx.17LKSE.M8LLFZT56kZZOY6MFgeF32Ujz3Yp9ojTj9jJ38XhnsH_0kRWPgk2JllQ0RR6MmM9pKFVN7eG5oBYlZbFwF83iNrgnFGsh3t6USYZIEuWxD1wv4e8r2LjgyeQymW9CJVEMnXaybx5hqA5MJ_3KBn2%22&SynoToken=U9GWVKqE6vFmM";
         internal LauncherStatus Status
         {
             get => _status;
@@ -117,15 +116,15 @@ namespace Project_Phoenix_Game_Launcher
                 else
                 {
                     Status = LauncherStatus.DownloadingGame;
-
-                    // Fetch cloud version
-                    var cloudVerStr = await GetCloudLatestVersion();
-                    if (cloudVerStr == null)
-                    {
-                        throw new Exception("Failed fetch cloud version");
-                    }
-                    _onlineVersion = new Version(cloudVerStr);
                 }
+
+                // Fetch cloud version
+                var cloudVerStr = await GetCloudLatestVersion();
+                if (cloudVerStr == null)
+                {
+                    throw new Exception("Failed fetch cloud version");
+                }
+                _onlineVersion = new Version(cloudVerStr);
 
                 // Fetch cloud download url
                 var cloudDownloadURL = await GetCloudLatestDistDownloadURL();
@@ -137,7 +136,9 @@ namespace Project_Phoenix_Game_Launcher
                 // Download
                 webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadGameCompletedCallback);
                 webClient.DownloadFileAsync(new Uri(cloudDownloadURL), gameZip, _onlineVersion);
-                
+
+                // After download update local version file
+                File.WriteAllText(versionFile, _onlineVersion.ToString());
             }
             catch (Exception ex)
             {
@@ -160,7 +161,7 @@ namespace Project_Phoenix_Game_Launcher
                 return null;
             }
 
-            return (string)releases[0]["tag_name"];
+            return (string)releases[0][LauncherConfig.VERSION_FETCH_KEY];
         }
 
         public async Task<string?> GetCloudLatestDistDownloadURL()
@@ -227,6 +228,7 @@ namespace Project_Phoenix_Game_Launcher
             }
         }
     }
+
     struct Version
     {
         internal static Version zero = new Version(0, 0, 0, "");

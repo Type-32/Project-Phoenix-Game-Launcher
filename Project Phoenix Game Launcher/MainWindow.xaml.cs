@@ -138,7 +138,7 @@ namespace Project_Phoenix_Game_Launcher
                 webClient.DownloadFileAsync(new Uri(cloudDownloadURL), gameZip, _onlineVersion);
 
                 // After download update local version file
-                File.WriteAllText(versionFile, _onlineVersion.ToString());
+                // File.WriteAllText(versionFile, _onlineVersion.ToString());
             }
             catch (Exception ex)
             {

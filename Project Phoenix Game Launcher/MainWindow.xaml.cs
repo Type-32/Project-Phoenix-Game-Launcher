@@ -15,7 +15,8 @@ namespace Project_Phoenix_Game_Launcher
     /// Interaction logic for MainWindow.xaml
     /// </summary>
 
-    public class LauncherConfig {
+    public class LauncherConfig
+    {
         public static string RELEASE_REPO = "https://repo.smartsheep.space/api/v1/repos/CRTL_Prototype_Studios/Project_Phoenix_Files/releases";
         public static string DIST_DOWNLOAD_KEY = "Build.zip";
         public static string VERSION_FETCH_KEY = "name";
@@ -78,7 +79,8 @@ namespace Project_Phoenix_Game_Launcher
                 try
                 {
                     var cloudVerStr = await GetCloudLatestVersion();
-                    if (cloudVerStr == null) {
+                    if (cloudVerStr == null)
+                    {
                         throw new Exception("Failed to fetch version from cloud");
                     }
 
@@ -178,8 +180,10 @@ namespace Project_Phoenix_Game_Launcher
                 return null;
             }
 
-            foreach(var asset in releases[0]["assets"].AsArray()) {
-                if ((string)asset["name"] == LauncherConfig.DIST_DOWNLOAD_KEY) {
+            foreach (var asset in releases[0]["assets"].AsArray())
+            {
+                if ((string)asset["name"] == LauncherConfig.DIST_DOWNLOAD_KEY)
+                {
                     return (string)asset["browser_download_url"];
                 }
             }
@@ -280,7 +284,7 @@ namespace Project_Phoenix_Game_Launcher
                     }
                     else
                     {
-                        if(verIndex != _otherVersion.verIndex)
+                        if (verIndex != _otherVersion.verIndex)
                         {
                             return true;
                         }

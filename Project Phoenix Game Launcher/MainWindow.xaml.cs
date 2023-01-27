@@ -17,7 +17,7 @@ namespace Project_Phoenix_Game_Launcher
 
     public class LauncherConfig
     {
-        public static string RELEASE_REPO = "https://repo.smartsheep.space/api/v1/repos/CRTL_Prototype_Studios/Project_Phoenix_Files/releases";
+        public static string RELEASE_REPO = "https://repo.smartsheep.studio/api/v1/repos/CRTL_Prototype_Studios/Project_Phoenix_Files/releases";
         public static string DIST_DOWNLOAD_KEY = "Build.zip";
         public static string VERSION_FETCH_KEY = "name";
     }
@@ -222,14 +222,27 @@ namespace Project_Phoenix_Game_Launcher
             if (File.Exists(gameExe) && Status == LauncherStatus.Ready)
             {
                 ProcessStartInfo startInfo = new ProcessStartInfo(gameExe);
-                startInfo.WorkingDirectory = Path.Combine(rootPath, "Build");
-                Process.Start(startInfo);
-                Close();
+                if (CheckForRunningInstances())
+                {
+                    MessageBox.Show($"Error Running Game Instance Found; Cannot have two instances exist simultaneously.");
+                }
+                else
+                {
+                    startInfo.WorkingDirectory = Path.Combine(rootPath, "Build");
+                    Process.Start(startInfo);
+                    Close();
+                }
             }
             else if (Status == LauncherStatus.Failed)
             {
                 CheckForUpdates();
             }
+        }
+        private bool CheckForRunningInstances()
+        {
+            bool success = false;
+            if (Process.GetProcesses(gameExe).Length > 0) success = true;
+            return success;
         }
     }
 

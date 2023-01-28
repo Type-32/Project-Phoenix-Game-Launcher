@@ -6,18 +6,66 @@
         xmlns:local="clr-namespace:Project_Phoenix_Game_Launcher"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
-        ContentRendered="Window_ContentRendered"
-        Title="MainWindow" Height="576" Width="1000">
-    <Grid>
-        <Image Stretch="UniformToFill" Source="images/LauncherBackground.png" HorizontalAlignment="Right"/>
-        <TextBlock Name="VersionText" Text="Checking Versions..."  VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="20" Foreground="#FF00848E" Margin="0,0,10,10"/>
-        <Button Name="PlayButton" Content="Checking For Updates..." Click="PlayButton_Click" Height="55" FontSize="28" FontWeight="Bold" Foreground="#DD00FFED" Margin="0,0,0,20" VerticalAlignment="Bottom" HorizontalAlignment="Center" MinWidth="150" Width="370">
-            <Button.Background>
-                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="#00000000" Offset="0"/>
-                    <GradientStop Color="#FF00A8AB" Offset="1"/>
-                </LinearGradientBrush>
-            </Button.Background>
-        </Button>
-    </Grid>
+        ContentRendered="OnWindowContentRendered"
+        Background="Transparent"
+        AllowsTransparency="True"
+        WindowStyle="None"
+        Title="MainWindow" Height="600" Width="920">
+    <Border Background="#272537"
+            CornerRadius="20">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            
+            <Grid.RowDefinitions>
+                <RowDefinition Height="75"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            
+            <TextBlock Text="Elysian"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Left"
+                       Foreground="White"
+                       FontSize="22"
+                       Margin="20,0,0,0"/>
+            
+            <StackPanel Grid.Row="1">
+                <RadioButton Content="Launch"
+                             Height="50"
+                             Foreground="White"
+                             Style="{StaticResource MenuButtonTheme}"
+                             FontSize="14"/>
+
+                <RadioButton Content="News"
+                             Height="50"
+                             Foreground="White"
+                             Style="{StaticResource MenuButtonTheme}"
+                             FontSize="14"/>
+                <RadioButton Content="Updates"
+                             Height="50"
+                             Foreground="White"
+                             Style="{StaticResource MenuButtonTheme}"
+                             FontSize="14"/>
+                <RadioButton Content="Settings"
+                             Height="50"
+                             Foreground="White"
+                             Style="{StaticResource MenuButtonTheme}"
+                             FontSize="14"/>
+            </StackPanel>
+            <TextBox Width="250"
+                       Height="40"
+                       VerticalContentAlignment="Center"
+                       HorizontalAlignment="Left"
+                       Margin="5"
+                       Style="{StaticResource ModernTextbox}"
+                       Grid.Column="1"/>
+            <ContentControl Grid.Row="1"
+                            Grid.Column="1"
+                            Margin="10"/>
+            
+        </Grid>
+        
+    </Border>
 </Window>

@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModel="clr-namespace:Project_Phoenix_Game_Launcher.MVVM.ViewModel"
         xmlns:local="clr-namespace:Project_Phoenix_Game_Launcher"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
@@ -10,32 +11,44 @@
         Background="Transparent"
         AllowsTransparency="True"
         WindowStyle="None"
+        MouseLeftButtonDown="Window_MouseLeftButtonDown_1"
         Title="MainWindow" Height="600" Width="920">
-    <Border Background="#272537"
+    <Window.DataContext>
+        <viewModel:MainViewModel/>
+    </Window.DataContext>
+    <Border
             CornerRadius="20">
+        <Border.Background>
+            <RadialGradientBrush>
+                <GradientStop Color="#FF2F2579"/>
+                <GradientStop Color="#FF27224A" Offset="1"/>
+            </RadialGradientBrush>
+        </Border.Background>
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="200"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            
+
             <Grid.RowDefinitions>
                 <RowDefinition Height="75"/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
-            
-            <TextBlock Text="Elysian"
+
+            <TextBlock Text="PPGL V4.0"
                        VerticalAlignment="Center"
                        HorizontalAlignment="Left"
                        Foreground="White"
                        FontSize="22"
-                       Margin="20,0,0,0"/>
-            
+                       Margin="20,0,0,0" TextWrapping="Wrap"/>
+
             <StackPanel Grid.Row="1">
                 <RadioButton Content="Launch"
                              Height="50"
                              Foreground="White"
                              Style="{StaticResource MenuButtonTheme}"
+                             IsChecked="True"
+                             Command="{Binding LaunchViewCommand}"
                              FontSize="14"/>
 
                 <RadioButton Content="News"
@@ -47,6 +60,7 @@
                              Height="50"
                              Foreground="White"
                              Style="{StaticResource MenuButtonTheme}"
+                             Command="{Binding UpdateViewCommand}"
                              FontSize="14"/>
                 <RadioButton Content="Settings"
                              Height="50"
@@ -61,11 +75,36 @@
                        Margin="5"
                        Style="{StaticResource ModernTextbox}"
                        Grid.Column="1"/>
+            <Button Content="X" Click="QuitApp"
+                        Width="30" Height="30"
+                        VerticalAlignment="Center" HorizontalAlignment="Right" Grid.Column="1" Margin="0,0,10,0"
+                        FontWeight="Bold" FontSize="20" Foreground="White" BorderThickness="0" FontFamily="Segoe UI">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="10"/>
+                    </Style>
+                </Button.Resources>
+                <Button.Background>
+                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                        <LinearGradientBrush.RelativeTransform>
+                            <TransformGroup>
+                                <ScaleTransform CenterY="0.5" CenterX="0.5"/>
+                                <SkewTransform CenterX="0.5" CenterY="0.5"/>
+                                <RotateTransform Angle="38.66" CenterX="0.5" CenterY="0.5"/>
+                                <TranslateTransform/>
+                            </TransformGroup>
+                        </LinearGradientBrush.RelativeTransform>
+                        <GradientStop Color="#FF655CA9"/>
+                        <GradientStop Color="#FF2B2271" Offset="1"/>
+                    </LinearGradientBrush>
+                </Button.Background>
+            </Button>
             <ContentControl Grid.Row="1"
                             Grid.Column="1"
+                            Content="{Binding CurrentView}"
                             Margin="10"/>
-            
+
         </Grid>
-        
+
     </Border>
 </Window>

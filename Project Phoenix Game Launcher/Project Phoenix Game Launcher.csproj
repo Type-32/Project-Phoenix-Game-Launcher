@@ -22,4 +22,19 @@
     <Folder Include="MVVM\Model\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Page Update="Theme\VersionComboBoxButtonTheme.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Theme\VersionComboBoxTheme.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Theme\VersionComboBoxTextTheme.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+
 </Project>

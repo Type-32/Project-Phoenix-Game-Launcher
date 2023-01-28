@@ -33,6 +33,7 @@ namespace Project_Phoenix_Game_Launcher.MVVM.View
         public static string RELEASE_REPO = "https://repo.smartsheep.studio/api/v1/repos/CRTL_Prototype_Studios/Project_Phoenix_Files/releases";
         public static string DIST_DOWNLOAD_KEY = "Build.zip";
         public static string VERSION_FETCH_KEY = "name";
+        public static string VERSION_DATE_FETCH_KEY = "created_at";
         public static string VERSION_CONTENT_FETCH_KEY = "body";
     }
 
@@ -59,16 +60,16 @@ namespace Project_Phoenix_Game_Launcher.MVVM.View
                 switch (_status)
                 {
                     case LauncherStatus.Ready:
-                        PlayButton.Content = "Play";
+                        PlayButton.Content = "Launch Game";
                         break;
                     case LauncherStatus.Failed:
                         PlayButton.Content = "Update Failed - Retry";
                         break;
                     case LauncherStatus.DownloadingGame:
-                        PlayButton.Content = "Downloading Game Files...";
+                        PlayButton.Content = "Downloading...";
                         break;
                     case LauncherStatus.DownloadingUpdate:
-                        PlayButton.Content = "Updating Game Files...";
+                        PlayButton.Content = "Updating...";
                         break;
                     default:
                         break;
@@ -83,6 +84,7 @@ namespace Project_Phoenix_Game_Launcher.MVVM.View
             gameZip = Path.Combine(rootPath, "Build.zip");
             gameExe = Path.Combine(rootPath, "Build", "Project Phoenix.exe");
             MainWindow.WindowContentRendered += CheckForUpdates;
+            //CheckForUpdates();
         }
 
         private async void CheckForUpdates()
@@ -256,7 +258,7 @@ namespace Project_Phoenix_Game_Launcher.MVVM.View
                 {
                     startInfo.WorkingDirectory = Path.Combine(rootPath, "Build");
                     Process.Start(startInfo);
-                    InitializeComponent();
+                    //InitializeComponent();
                 }
             }
             else if (Status == LauncherStatus.Failed)

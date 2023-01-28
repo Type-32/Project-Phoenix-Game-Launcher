@@ -29,5 +29,13 @@ namespace Project_Phoenix_Game_Launcher
             WindowContentRendered?.Invoke();
         }
         public static Action? WindowContentRendered;
+        private void Window_MouseLeftButtonDown_1(object sender, MouseButtonEventArgs e)
+        {
+            DragMove();
+        }
+        private void QuitApp(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
     }
 }

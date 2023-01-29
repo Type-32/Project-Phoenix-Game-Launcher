@@ -24,31 +24,17 @@ using Project_Phoenix_Game_Launcher;
 
 namespace Project_Phoenix_Game_Launcher.MVVM.View
 {
-    public partial class UpdatePageView : UserControl
+    public partial class NewsPageView : UserControl
     {
         public List<string> CachedVersions = new();
         public List<string> CachedVersionDates = new();
         public List<string> CachedVersionContents = new();
-        public UpdatePageView()
+        public NewsPageView()
         {
             InitializeComponent();
             RefreshUpdateLogs();
             //MainWindow.WindowContentRendered += CheckForUpdates;
             //CheckForUpdates();
-        }
-        public void RefreshPageView(object sender, RoutedEventArgs e)
-        {
-            RefreshUpdateLogs();
-        }
-        public void VersionSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            ImprintSelection(VersionsCombo.SelectedIndex);
-        }
-        public void ImprintSelection(int index)
-        {
-            VersionTitle.Text = "Version " + CachedVersions[index];
-            UpdateContent.Text = CachedVersionContents[index];
-            DateText.Text = "Released on " + CachedVersionDates[index];
         }
         public async void RefreshUpdateLogs()
         {
@@ -58,10 +44,6 @@ namespace Project_Phoenix_Game_Launcher.MVVM.View
             if (contents != null) CachedVersionContents = contents;
             var dates = await GetAllCloudVersionDates();
             if (dates != null) CachedVersionDates = dates;
-
-            if (versions != null) VersionsCombo.ItemsSource = versions;
-            if(VersionsCombo.Items[0] != null) VersionsCombo.SelectedItem = VersionsCombo.Items[0];
-            ImprintSelection(0);
         }
         public async Task<List<string>?> GetAllCloudVersions()
         {

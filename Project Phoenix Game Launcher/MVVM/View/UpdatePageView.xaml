@@ -21,21 +21,45 @@
                 </RadialGradientBrush>
             </Border.Background>
         </Border>
+        <Button Content="Refresh" Click="RefreshPageView"
+                        Width="95" Height="30"
+                        VerticalAlignment="Top" HorizontalAlignment="Left"
+                        FontWeight="Bold" FontSize="18" Foreground="White" BorderThickness="0" FontFamily="Bahnschrift" Margin="220,20,0,0">
+            <Button.Resources>
+                <Style TargetType="Border">
+                    <Setter Property="CornerRadius" Value="10"/>
+                </Style>
+            </Button.Resources>
+            <Button.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <LinearGradientBrush.RelativeTransform>
+                        <TransformGroup>
+                            <ScaleTransform CenterY="0.5" CenterX="0.5"/>
+                            <SkewTransform CenterX="0.5" CenterY="0.5"/>
+                            <RotateTransform Angle="38.66" CenterX="0.5" CenterY="0.5"/>
+                            <TranslateTransform/>
+                        </TransformGroup>
+                    </LinearGradientBrush.RelativeTransform>
+                    <GradientStop Color="#FF655CA9"/>
+                    <GradientStop Color="#FF2B2271" Offset="1"/>
+                </LinearGradientBrush>
+            </Button.Background>
+        </Button>
         <ComboBox Name="VersionsCombo"
             Width="180" Height="30" Margin="20,20,0,0"
             VerticalAlignment="Top" HorizontalAlignment="Left"
                   SelectionChanged="VersionSelectionChanged" FontSize="14">
         </ComboBox>
-        <TextBlock Name="VersionTitle" Text="Fetching Data..." FontSize="30" FontWeight="Bold"
-            Width="320" Height="40" Margin="20,60,0,0"
+        <TextBlock Name="VersionTitle" Text="Fetching Cloud Versions..." FontSize="30" FontWeight="Bold"
+            Width="420" Height="40" Margin="20,60,0,0"
             VerticalAlignment="Top" HorizontalAlignment="Left" Foreground="White" FontFamily="Bahnschrift"/>
-        <TextBlock Name="DateText" Text="" FontSize="14" FontWeight="Light" FontFamily="Bahnschrift"
+        <TextBlock Name="DateText" Text="Fetching Date from Cloud..." FontSize="14" FontWeight="Light" FontFamily="Bahnschrift"
             Width="280" Height="20" Margin="20,100,0,0"
             VerticalAlignment="Top" HorizontalAlignment="Left" Foreground="White"/>
-        <TextBlock Text="" FontSize="24" FontWeight="Bold"
+        <TextBlock Text="Changes" FontSize="24" FontWeight="Bold"
             Width="320" Height="40" Margin="20,130,0,0" FontFamily="Bahnschrift"
             VerticalAlignment="Top" HorizontalAlignment="Left" Foreground="White"/>
-        <TextBlock Name="UpdateContent" Text="" FontSize="16" Height="265" Margin="20,170,20,0"
+        <TextBlock Name="UpdateContent" Text="Fetching Content from Cloud..." FontSize="16" Height="265" Margin="20,170,20,0"
             VerticalAlignment="Top" HorizontalAlignment="Stretch" Foreground="White" FontFamily="Bahnschrift"/>
     </Grid>
 </UserControl>

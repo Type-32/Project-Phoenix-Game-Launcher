@@ -19,6 +19,9 @@
             <DataTemplate DataType="{x:Type viewModel:UpdateViewModel}">
                 <view:UpdatePageView/>
             </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModel:NewsViewModel}">
+                <view:NewsPageView/>
+            </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

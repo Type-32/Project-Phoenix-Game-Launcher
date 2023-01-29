@@ -21,6 +21,7 @@ using System.Net.Http;
 using System.Text.Json.Nodes;
 using Path = System.IO.Path;
 using Project_Phoenix_Game_Launcher;
+using System.Runtime.InteropServices;
 
 namespace Project_Phoenix_Game_Launcher.MVVM.View
 {
@@ -32,9 +33,16 @@ namespace Project_Phoenix_Game_Launcher.MVVM.View
     {
         public static string RELEASE_REPO = "https://repo.smartsheep.studio/api/v1/repos/CRTL_Prototype_Studios/Project_Phoenix_Files/releases";
         public static string DIST_DOWNLOAD_KEY = "Build.zip";
+        public static string MAC_DIST_DOWNLOAD_KEY = "Silicon.app";
         public static string VERSION_FETCH_KEY = "name";
         public static string VERSION_DATE_FETCH_KEY = "created_at";
         public static string VERSION_CONTENT_FETCH_KEY = "body";
+    }
+    public static class LocalOperatingSystem
+    {
+        public static bool IsWindows() => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        public static bool IsMacOS() => RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+        public static bool IsLinux() => RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
     }
 
     enum LauncherStatus
@@ -50,6 +58,7 @@ namespace Project_Phoenix_Game_Launcher.MVVM.View
         private string versionFile;
         private string gameZip;
         private string gameExe;
+        private string gameSilicon;
         private LauncherStatus _status;
         internal LauncherStatus Status
         {
@@ -83,8 +92,9 @@ namespace Project_Phoenix_Game_Launcher.MVVM.View
             versionFile = Path.Combine(rootPath, "Version.txt");
             gameZip = Path.Combine(rootPath, "Build.zip");
             gameExe = Path.Combine(rootPath, "Build", "Project Phoenix.exe");
-            MainWindow.WindowContentRendered += CheckForUpdates;
-            //CheckForUpdates();
+            gameSilicon = Path.Combine(rootPath, "Silicon.app");
+            //MainWindow.WindowContentRendered += CheckForUpdates;
+            CheckForUpdates();
         }
 
         private async void CheckForUpdates()
@@ -212,16 +222,31 @@ namespace Project_Phoenix_Game_Launcher.MVVM.View
                 MessageBox.Show("An Error Ocurred when trying to fetch Download URL: Cannot find Latest Version");
                 return null;
             }
-
-            foreach (var asset in releases[0]["assets"].AsArray())
+            if (LocalOperatingSystem.IsWindows())
             {
-                if ((string)asset["name"] == LauncherConfig.DIST_DOWNLOAD_KEY)
+                foreach (var asset in releases[0]["assets"].AsArray())
                 {
-                    return (string)asset["browser_download_url"];
+                    if ((string)asset["name"] == LauncherConfig.DIST_DOWNLOAD_KEY)
+                    {
+                        return (string)asset["browser_download_url"];
+                    }
+                }
+            }else if (LocalOperatingSystem.IsMacOS())
+            {
+                foreach (var asset in releases[0]["assets"].AsArray())
+                {
+                    if ((string)asset["name"] == LauncherConfig.MAC_DIST_DOWNLOAD_KEY)
+                    {
+                        return (string)asset["browser_download_url"];
+                    }
                 }
             }
+            else
+            {
+                throw new NotImplementedException();
+            }
 
-            MessageBox.Show($"An Error Ocurred when trying to fetch download URL: Asset {LauncherConfig.DIST_DOWNLOAD_KEY} Does not exist");
+            MessageBox.Show($"An Error Ocurred when trying to fetch download URL: Asset {(LocalOperatingSystem.IsWindows() ? LauncherConfig.DIST_DOWNLOAD_KEY : LocalOperatingSystem.IsMacOS() ? LauncherConfig.MAC_DIST_DOWNLOAD_KEY : "NullReferenceException")} Does not exist");
             return null;
         }
 
@@ -230,11 +255,17 @@ namespace Project_Phoenix_Game_Launcher.MVVM.View
             try
             {
                 string onlineVersion = ((Version)e.UserState).ToString();
-                ZipFile.ExtractToDirectory(gameZip, rootPath, true);
-                File.Delete(gameZip);
+                if (LocalOperatingSystem.IsWindows())
+                {
+                    ZipFile.ExtractToDirectory(gameZip, rootPath, true);
+                    File.Delete(gameZip);
+                }else if (LocalOperatingSystem.IsMacOS())
+                {
+                    File.Move(gameSilicon, rootPath, true);
+                    if(File.Exists(gameZip)) File.Delete(gameZip);
+                }
 
                 File.WriteAllText(versionFile, onlineVersion);
-
                 VersionText.Text = "Game Version " + onlineVersion;
                 Status = LauncherStatus.Ready;
             }
@@ -247,23 +278,46 @@ namespace Project_Phoenix_Game_Launcher.MVVM.View
 
         private void PlayButton_Click(object sender, RoutedEventArgs e)
         {
-            if (File.Exists(gameExe) && Status == LauncherStatus.Ready)
+            if (LocalOperatingSystem.IsWindows())
             {
-                ProcessStartInfo startInfo = new ProcessStartInfo(gameExe);
-                if (CheckForRunningInstances())
+                if (File.Exists(gameExe) && Status == LauncherStatus.Ready)
                 {
-                    MessageBox.Show($"Error Running Game Instance Found; Cannot have two instances exist simultaneously.");
+                    ProcessStartInfo startInfo = new ProcessStartInfo(gameExe);
+                    if (CheckForRunningInstances())
+                    {
+                        MessageBox.Show($"Error Running Game Instance Found; Cannot have two instances exist simultaneously.");
+                    }
+                    else
+                    {
+                        startInfo.WorkingDirectory = Path.Combine(rootPath, "Build");
+                        Process.Start(startInfo);
+                        //InitializeComponent();
+                    }
                 }
-                else
+                else if (Status == LauncherStatus.Failed)
                 {
-                    startInfo.WorkingDirectory = Path.Combine(rootPath, "Build");
-                    Process.Start(startInfo);
-                    //InitializeComponent();
+                    CheckForUpdates();
                 }
-            }
-            else if (Status == LauncherStatus.Failed)
+            }else if (LocalOperatingSystem.IsMacOS())
             {
-                CheckForUpdates();
+                if (File.Exists(gameSilicon) && Status == LauncherStatus.Ready)
+                {
+                    ProcessStartInfo startInfo = new ProcessStartInfo(gameSilicon);
+                    if (CheckForRunningInstances())
+                    {
+                        MessageBox.Show($"Error Running Game Instance Found; Cannot have two instances exist simultaneously.");
+                    }
+                    else
+                    {
+                        startInfo.WorkingDirectory = rootPath;
+                        Process.Start(startInfo);
+                        //InitializeComponent();
+                    }
+                }
+                else if (Status == LauncherStatus.Failed)
+                {
+                    CheckForUpdates();
+                }
             }
         }
         private async void UpdateLogButton_Click(object sender, RoutedEventArgs e)

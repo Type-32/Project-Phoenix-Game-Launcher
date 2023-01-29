@@ -23,6 +23,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="MVVM\View\NewsPageView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="MVVM\View\NewsPageView.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="Theme\VersionComboBoxButtonTheme.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>

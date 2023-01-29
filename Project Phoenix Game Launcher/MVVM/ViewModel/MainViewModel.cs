@@ -11,8 +11,10 @@ namespace Project_Phoenix_Game_Launcher.MVVM.ViewModel
     {
         public RelayCommand LaunchViewCommand { get; set; }
         public RelayCommand UpdateViewCommand { get; set; }
+        public RelayCommand NewsViewCommand { get; set; }
         public LaunchViewModel LaunchViewModel { get; set; }
         public UpdateViewModel UpdateViewModel { get; set; }
+        public NewsViewModel NewsViewModel { get; set; }
         private object _currentView;
         public object CurrentView
         {
@@ -23,6 +25,7 @@ namespace Project_Phoenix_Game_Launcher.MVVM.ViewModel
         {
             LaunchViewModel = new LaunchViewModel();
             UpdateViewModel = new UpdateViewModel();
+            NewsViewModel = new NewsViewModel();
             CurrentView = LaunchViewModel;
 
             LaunchViewCommand = new RelayCommand(o =>
@@ -32,6 +35,10 @@ namespace Project_Phoenix_Game_Launcher.MVVM.ViewModel
             UpdateViewCommand = new RelayCommand(o =>
             {
                 CurrentView = UpdateViewModel;
+            });
+            NewsViewCommand = new RelayCommand(o =>
+            {
+                CurrentView = NewsViewModel;
             });
         }
     }

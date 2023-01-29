@@ -12,7 +12,7 @@
         AllowsTransparency="True"
         WindowStyle="None"
         MouseLeftButtonDown="Window_MouseLeftButtonDown_1"
-        Title="MainWindow" Height="600" Width="920">
+        Title="Project Phoenix Game Launcher V4.0" Height="600" Width="920">
     <Window.DataContext>
         <viewModel:MainViewModel/>
     </Window.DataContext>
@@ -50,22 +50,11 @@
                              IsChecked="True"
                              Command="{Binding LaunchViewCommand}"
                              FontSize="14"/>
-
-                <RadioButton Content="News"
-                             Height="50"
-                             Foreground="White"
-                             Style="{StaticResource MenuButtonTheme}"
-                             FontSize="14"/>
                 <RadioButton Content="Updates"
                              Height="50"
                              Foreground="White"
                              Style="{StaticResource MenuButtonTheme}"
                              Command="{Binding UpdateViewCommand}"
-                             FontSize="14"/>
-                <RadioButton Content="Settings"
-                             Height="50"
-                             Foreground="White"
-                             Style="{StaticResource MenuButtonTheme}"
                              FontSize="14"/>
             </StackPanel>
             <TextBox Width="250"

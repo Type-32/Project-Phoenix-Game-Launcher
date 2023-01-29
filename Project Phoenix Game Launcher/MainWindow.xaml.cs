@@ -22,7 +22,7 @@ namespace Project_Phoenix_Game_Launcher
     {
         public MainWindow()
         {
-            
+            //WindowContentRendered?.Invoke();
         }
         private void OnWindowContentRendered(object sender, EventArgs e)
         {

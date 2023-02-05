@@ -1,0 +1,8 @@
+﻿<maui:MauiWinUIApplication
+    x:Class="Project_Phoenix_Launcher_MAUI_Port.WinUI.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:maui="using:Microsoft.Maui"
+    xmlns:local="using:Project_Phoenix_Launcher_MAUI_Port.WinUI">
+
+</maui:MauiWinUIApplication>
